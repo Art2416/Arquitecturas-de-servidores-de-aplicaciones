@@ -9,6 +9,7 @@
         <module name="Aplicaciones-distribuidas-http-sockets-html-js-" />
         <module name="Taller1" />
         <module name="MICROFRAMEWORKS-WEB" />
+        <module name="Arquitecturas-de-servidores-de-aplicaciones" />
       </profile>
     </annotationProcessing>
   </component>

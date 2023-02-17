@@ -25,7 +25,10 @@ public class HttpServer {
         Class c = Class.forName(args[0]);
 
         for (Method method :c.getMethods()){
-            if (method.isAnnotationPresent(RequestMapping.class)){}
+            if (method.isAnnotationPresent(RequestMapping.class)){
+                String path = method.getAnnotationsByType(RequestMapping.class)[0].value();
+                method.getClass();
+            }
         }
 
 
