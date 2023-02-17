@@ -1,5 +1,6 @@
 package escuelaing.edu.co.arep;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.util.HashMap;
@@ -16,18 +17,18 @@ import java.util.Objects;
  */
 public class HttpServer {
 
-
+    private static Map<String, Method> methods = new HashMap<>();
     private static  HttpServer _instance = new HttpServer();
 
     private OutputStream outputStream = null;
-    public void run(String[] args) throws IOException, ClassNotFoundException {
+    public void run(String[] args) throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         ServerSocket serverSocket = null;
         Class c = Class.forName(args[0]);
 
         for (Method method :c.getMethods()){
             if (method.isAnnotationPresent(RequestMapping.class)){
                 String path = method.getAnnotationsByType(RequestMapping.class)[0].value();
-                method.getClass();
+                methods.put(path,method);
             }
         }
 
@@ -76,18 +77,18 @@ public class HttpServer {
                     break;
                 }
             }
-            if (ruta.startsWith("/apps/")) {
-                outputLine = ruta.substring(5);
-                if (Service.requests.containsKey(outputLine)){
-                    outputLine = Service.requests.get(outputLine).getResponse();
-                }
-            } else if (!nombrePelicula.equals("")) {
-                String response = Conection.busqueda(nombrePelicula, "http://www.omdbapi.com/?t=" + nombrePelicula + "&apikey=62c22013");
-                outputLine ="HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + "<br>" + "<table border=\" 1 \"> \n " + organizacion(response)+ "    </table>";
-            }else {
-                outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + content();
-            }
-
+            //if (ruta.startsWith("/apps/")) {
+            //    outputLine = ruta.substring(5);
+            //    if (Service.requests.containsKey(outputLine)){
+            //        outputLine = Service.requests.get(outputLine).getResponse();
+            //    }
+            //} else if (!nombrePelicula.equals("")) {
+            //    String response = Conection.busqueda(nombrePelicula, "http://www.omdbapi.com/?t=" + nombrePelicula + "&apikey=62c22013");
+            //    outputLine ="HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + "<br>" + "<table border=\" 1 \"> \n " + organizacion(response)+ "    </table>";
+            //}else {
+            //    outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + content();
+            //}
+            outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + methods.get(ruta).invoke(null);
             out.println(outputLine);
             out.close();
             in.close();
