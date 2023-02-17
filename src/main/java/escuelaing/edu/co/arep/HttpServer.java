@@ -88,7 +88,7 @@ public class HttpServer {
             //}else {
             //    outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + content();
             //}
-            outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + methods.get(ruta).invoke(null);
+            outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + methods.get(ruta).invoke(null).toString();
             out.println(outputLine);
             out.close();
             in.close();
