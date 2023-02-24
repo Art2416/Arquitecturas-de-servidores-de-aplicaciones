@@ -11,6 +11,11 @@ import java.nio.file.Paths;
 @Rest
 public class invokeService {
 
+    @RequestMapping("/")
+    public static String index() {
+        return  getHeader() + getResponseIndex();
+    }
+
     @RequestMapping("404")
     public static String notFoundException() {
         return  getHeader() + getResponseNotFound();
@@ -22,10 +27,20 @@ public class invokeService {
                 "\r\n";
     }
 
+    public static String getResponseIndex() {
+        byte[] file;
+        try{
+            file = Files.readAllBytes(Paths.get("src/main/resources/pagina.html"));
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+        return new String(file);
+    }
+
     public static String getResponseNotFound() {
         byte[] file;
         try{
-            file = Files.readAllBytes(Paths.get("src/main/resources/public/error404.html"));
+            file = Files.readAllBytes(Paths.get("src/main/resources/public/notFound.html"));
         }catch (IOException e){
             throw new RuntimeException(e);
         }

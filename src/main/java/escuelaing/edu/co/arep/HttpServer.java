@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import escuelaing.edu.co.arep.mySpark.RequestMapping;
 import escuelaing.edu.co.arep.mySpark.Rest;
-import escuelaing.edu.co.arep.mySpark.Spark;
+import escuelaing.edu.co.arep.mySpark.SpringPersonal;
 import org.json.*;
 import java.io.*;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class HttpServer {
     private OutputStream outputStream;
     public void run(String[] args) throws IOException, ClassNotFoundException {
 
-        Spark spark = new Spark();
+        SpringPersonal spark = new SpringPersonal();
         ArrayList<String> classes = spark.getClassComponent(new ArrayList<>(), ".");
         for (String className: classes) {
             Class c = Class.forName(className);
