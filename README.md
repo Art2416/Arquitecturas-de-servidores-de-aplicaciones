@@ -23,24 +23,25 @@ Tener instalado maven, entorno de desarrollo para el lenguaje (java) repositorio
 * Ingresar desde el navegador (mozila preferiblemente).
 * En la barra de búsqueda ingresar http://localhost:35000
 * Para ingresar a cada uno de los servicios creados ingrese:
-    1. http://localhost:35000/apps/index.html
-  2. http://localhost:35000/apps/index.css
-  3. http://localhost:35000/apps/script.js
-* En cada uno de estos se está empleando funcionamiento del get con la función lambda  
+    1. http://localhost:35000/app
+  2. http://localhost:35000/html
+  3. http://localhost:35000/css
+  4. cualquier otra direccion en la url redirecciona a pagina error error
+* En cada uno de estos se estan empleando POJO estos usan anotaciones las cuales nos permite determinar las clases a usar.  
 ## Ejecuciones 
 
 
 
 
-![](./img/4.png)
+![](./img/01.png)
 
-![](./img/index.png)
+![](./img/02.png)
 
-![](./img/5.png)
+![](./img/03.png)
 
-![](./img/lambda.png)
+![](./img/04.png)
 
-![](./img/get.png)
+![](./img/05.png)
 
 
 ### Información adicional
