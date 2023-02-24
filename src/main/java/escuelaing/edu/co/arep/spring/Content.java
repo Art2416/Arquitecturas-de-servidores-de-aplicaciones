@@ -1,8 +1,8 @@
-package escuelaing.edu.co.arep.mySpark;
+package escuelaing.edu.co.arep.spring;
 
-import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Rest {}
+public @interface Content {
+}

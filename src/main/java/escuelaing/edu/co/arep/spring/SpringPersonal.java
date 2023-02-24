@@ -1,4 +1,4 @@
-package escuelaing.edu.co.arep.mySpark;
+package escuelaing.edu.co.arep.spring;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class SpringPersonal {
+
     private ArrayList<String> classes;
 
 
@@ -25,9 +26,9 @@ public class SpringPersonal {
                 if (Files.isDirectory(file)) {
                     getClassComponent(files, file.toString());
                 } else if (Files.isRegularFile(file)){
-                    if (file.toString().split("\\.")[1].equals("java")) {;
-                        String className = file.toString().replace("\\", ".").replace(".java", "").split("main.")[0];
-                        if(Class.forName(className).isAnnotationPresent(Rest.class)){
+                    if (file.toString().split("\\.")[2].equals("java")) {;
+                        String className = file.toString().replace("\\", ".").replace(".java", "").split("main.")[1];
+                        if(Class.forName(className).isAnnotationPresent(Content.class)){
                             files.add(className);
                         }
                     }
@@ -40,5 +41,5 @@ public class SpringPersonal {
         }
         return files;
     }
-}
 
+}
