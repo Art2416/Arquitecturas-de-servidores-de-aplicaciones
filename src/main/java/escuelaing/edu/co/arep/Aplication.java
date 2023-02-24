@@ -7,16 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Aplication {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
+        System.out.println("Inicio la APP!");
         HttpServer server = HttpServer.getInstance();
-        Service.get("/index.html",  (request, response) -> { response.setExtent("text/html");return response.getResponse();});
-        Service.get("/index.css",  (request, response) -> { response.setExtent("text/css");return response.getResponse();});
-        Service.get("/script.js",  (request, response) -> { response.setExtent("text/javascript");return response.getResponse();});
-        try {
-            server.run(args);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        server.run(args);
     }
 }

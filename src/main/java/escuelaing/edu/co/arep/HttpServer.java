@@ -3,9 +3,12 @@ package escuelaing.edu.co.arep;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import escuelaing.edu.co.arep.sparkService.Service;
+import escuelaing.edu.co.arep.mySpark.RequestMapping;
+import escuelaing.edu.co.arep.mySpark.Rest;
+import escuelaing.edu.co.arep.mySpark.Spark;
 import org.json.*;
 import java.io.*;
 import java.util.Map;
@@ -17,23 +20,25 @@ import java.util.Objects;
  */
 public class HttpServer {
 
-    private static Map<String, Method> methods = new HashMap<>();
     private static  HttpServer _instance = new HttpServer();
 
-    private OutputStream outputStream = null;
-    public void run(String[] args) throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
-        ServerSocket serverSocket = null;
-        Class c = Class.forName(args[0]);
+    private HashMap<String, Method> methods = new HashMap<>();
 
-        for (Method method :c.getMethods()){
-            if (method.isAnnotationPresent(RequestMapping.class)){
-                String path = method.getAnnotationsByType(RequestMapping.class)[0].value();
-                methods.put(path,method);
+    private OutputStream outputStream;
+    public void run(String[] args) throws IOException, ClassNotFoundException {
+
+        Spark spark = new Spark();
+        ArrayList<String> classes = spark.getClassComponent(new ArrayList<>(), ".");
+        for (String className: classes) {
+            Class c = Class.forName(className);
+            for (Method m: c.getMethods()) {
+                if (m.isAnnotationPresent(RequestMapping.class)){
+                    methods.put(m.getAnnotation(RequestMapping.class).value(), m);
+                }
             }
         }
-
-
-
+        System.out.println("Methods: " + methods);
+        ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(35000);
         } catch (IOException e) {
@@ -56,20 +61,21 @@ public class HttpServer {
                     new InputStreamReader(
                             clientSocket.getInputStream()));
             String nombrePelicula="";
-            String inputLine, outputLine, ruta = "/simple";
+            String inputLine, outputLine = "", ruta = "/simple";
             outputStream = clientSocket.getOutputStream();
             Boolean indicator = true;
-
+            String call = "call";
 
             while ((inputLine = in.readLine()) != null) {
                 System.out.println("Received: " + inputLine);
 
-                if(inputLine.contains("info?title=")){
-                    String[] res = inputLine.split("title=");
-                    nombrePelicula = (res[1].split("HTTP")[0]).replace(" ", "");
-                }
+                //if(inputLine.contains("info?title=")){
+                //    String[] res = inputLine.split("title=");
+                //    nombrePelicula = (res[1].split("HTTP")[0]).replace(" ", "");
+                //}
                 if (indicator) {
                     ruta = inputLine.split(" ")[1];
+                    call = inputLine.split(" ")[0];
                     indicator = false;
                 }
 
@@ -77,18 +83,31 @@ public class HttpServer {
                     break;
                 }
             }
-            //if (ruta.startsWith("/apps/")) {
-            //    outputLine = ruta.substring(5);
-            //    if (Service.requests.containsKey(outputLine)){
-            //        outputLine = Service.requests.get(outputLine).getResponse();
-            //    }
-            //} else if (!nombrePelicula.equals("")) {
-            //    String response = Conection.busqueda(nombrePelicula, "http://www.omdbapi.com/?t=" + nombrePelicula + "&apikey=62c22013");
-            //    outputLine ="HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + "<br>" + "<table border=\" 1 \"> \n " + organizacion(response)+ "    </table>";
-            //}else {
-            //    outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + content();
-            //}
-            outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + methods.get(ruta).invoke(null).toString();
+
+                //if (ruta.startsWith("/apps/")) {
+                //    outputLine = ruta.substring(5);
+                //    if (Service.requests.containsKey(outputLine)){
+                //        outputLine = Service.requests.get(outputLine).getResponse();
+                //    }
+                //} else if (!nombrePelicula.equals("")) {
+                //    String response = Conection.busqueda(nombrePelicula, "http://www.omdbapi.com/?t=" + nombrePelicula + "&apikey=62c22013");
+                //    outputLine ="HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + "<br>" + "<table border=\" 1 \"> \n " + organizacion(response)+ "    </table>";
+                //}else {
+                //    outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + content();
+                //}
+            if (Objects.equals(call, "call")) {
+                try {
+                    if (methods.containsKey(ruta)) {
+                        outputLine = (String) methods.get(ruta).invoke(null);
+                    } else {
+                        outputLine = (String) methods.get("404").invoke(null);
+                    }
+                    } catch (IllegalAccessException | InvocationTargetException e) {throw new RuntimeException(e);
+                    }
+            } else {
+                    outputLine = "HTTP/1.1 200 OK\r\n" + "Content-type: text/html\r\n" + "\r\n" + "<!DOCTYPE html>" + "<html>" + "<head>" + "<meta charset=\"UTF-8\">" + "<title>404</title>\n" + "</head>" + "<body>" + "Use metodos GET" + "</body>" + "</html>";
+            }
+
             out.println(outputLine);
             out.close();
             in.close();
@@ -136,6 +155,9 @@ public class HttpServer {
                 "</body>\n" +
                 "</html>";
     }
+    public OutputStream getOutputStream() {
+        return this.outputStream;
+    }
     private static Map<String, Rest> memory = new HashMap<>();
     /**
      * organiza la informacion
@@ -172,20 +194,18 @@ public class HttpServer {
         }
         return organizar;
     }
-    public static String ejecucion(String serviceName) throws IOException {
-        String body, header;
-        if (memory.containsKey(serviceName) ) {
-            Rest rs = memory.get(serviceName);
-            header = rs.getHeader();
-            body = rs.getResponse();
-        } else {
-            Rest rs = memory.get("/noEncontrado");
-            header = rs.getHeader();
-            body = rs.getResponse();
-        }
+    //public static String ejecucion(String serviceName) throws IOException {
+      //  String body, header;
+       // if (memory.containsKey(serviceName) ) {
+         //   Rest rs = memory.get(serviceName);
+          //  header = rs.getHeader();
+           // body = rs.getResponse();
+        //} else {
+          //  Rest rs = memory.get("/noEncontrado");
+            //header = rs.getHeader();
+            //body = rs.getResponse();}
 
-        return header + body;
-    }
+        //return header + body;}
     public void nuevoServicio(String key, Rest service) {
         memory.put(key, service);
     }
